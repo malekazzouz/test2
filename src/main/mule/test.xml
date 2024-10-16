@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4cc4dfe1-2c1c-41f4-8c8f-1073013a2a2a" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="38cd23d7-a203-4c6f-9fa0-6fb63230df80" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<flow name="testFlow" doc:id="60bba61c-d0c6-4933-b350-052c0c6e8ea4" >
+		<http:listener doc:name="Listener" doc:id="9781aabd-31e6-452f-a999-60657e276767" config-ref="HTTP_Listener_config" path="/test1"/>
+		<set-payload value='#["hello world!"]' doc:name="Set Payload" doc:id="b92c48a0-5e10-4f79-b76b-0011e2b8f6a1" />
+		<ee:transform doc:name="Transform Message" doc:id="ee66efc7-cab3-4439-bfc2-ba12cf5de6b1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+	payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value='#["this me aagin " ++ payload]' doc:name="Set Variable" doc:id="2b206750-1c2b-4828-925c-005d26b6b6e4" variableName="variable"/>
+		<set-payload value="#[vars.variable]" doc:name="Set Payload" doc:id="510781c4-b52b-41ba-a53b-8f2645249d57" />
+		<http:request method="POST" doc:name="Request" doc:id="2cc9a3a3-750e-4287-aba1-bdf4c5c00214" url="http://localhost:8082/test2"/>
+	</flow>
+	<flow name="testFlow1" doc:id="b3c178c9-ef63-4d67-bf61-c0203e334b8a" >
+		<http:listener doc:name="Listener" doc:id="734ce54a-620c-4ff3-9c7d-65e69cfd8f9c" config-ref="HTTP_Listener_config1" path="/test2"/>
+		<set-payload value='#["hi"]' doc:name="Set Payload" doc:id="35170283-f622-482c-aa05-97044e7347d4" />
+	</flow>
+</mule>
